@@ -1,19 +1,54 @@
-name: Deploy Vulnerable Application                                  # workflow name
+# name: Deploy Vulnerable Application                                  # workflow name
+
+# on:
+#   push:
+#     branches:
+#       - master
+# jobs:
+#   deploy-heroku:
+#     name: Deploy Heroku
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
+#         with:
+#           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+#           heroku_app_name: "app-vulnerable2022" #Must be unique in Heroku
+#           heroku_email: "roxsrossve@gmail.com"
+#           remote_branch: "master"
+#           usedocker: true
+
+name: Build and Deploy to Cloud Run
 
 on:
   push:
-    branches:
-      - master
+    branches: [main]
+
 jobs:
-  deploy-heroku:
-    name: Deploy Heroku
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.12.12 # This is the action
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "app-vulnerable2022" #Must be unique in Heroku
-          heroku_email: "roxsrossve@gmail.com"
-          remote_branch: "master"
-          usedocker: true
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+    - name: Configure Docker
+      run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+    - name: Build Docker image
+      run: |
+        docker build -t us-central1-docker.pkg.dev/devsecops-project-vuln/app-repo/vulnerable-web-app .
+        docker push us-central1-docker.pkg.dev/devsecops-project-vuln/app-repo/vulnerable-web-app
+
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy vulnerable-web-app \
+          --image=us-central1-docker.pkg.dev/devsecops-project-vuln/app-repo/vulnerable-web-app \
+          --region=us-central1 \
+          --platform=managed \
+          --allow-unauthenticated
