@@ -31,5 +31,6 @@ jobs:
           --image=us-central1-docker.pkg.dev/devsecops-project-vuln/app-repo/vulnerable-web-app \
           --region=us-central1 \
           --platform=managed \
-          --allow-unauthenticated \
-          --service-account="github-ci@devsecops-project-vuln.iam.gserviceaccount.com"
+          --allow-unauthenticated 
+# \
+# --service-account="github-ci@devsecops-project-vuln.iam.gserviceaccount.com"
