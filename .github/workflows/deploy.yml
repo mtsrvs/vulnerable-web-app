@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v3
 
     - name: Set up Google Cloud
-      uses: google-github-actions/auth@v1
+      uses: google-github-actions/auth@v2
       with:
         credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
@@ -31,5 +31,4 @@ jobs:
           --image=us-central1-docker.pkg.dev/devsecops-project-vuln/app-repo/vulnerable-web-app \
           --region=us-central1 \
           --platform=managed \
-          --allow-unauthenticated \
-          --service-account="github-ci@devsecops-project-vuln.iam.gserviceaccount.com"
+          --allow-unauthenticated
